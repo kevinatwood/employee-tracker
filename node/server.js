@@ -5,7 +5,7 @@ const mysql = require('mysql2');
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password:  DB_PASSWORD,
+    password:  'Fuckface69',
     database: 'employees_db',
 }, 
 console.log('Conected to database!'))
@@ -76,11 +76,12 @@ const viewRoles = () => {
 
 const viewEmployees = () =>{
     db.query(`
-  SELECT employee.id AS id, employee.first_name AS firstName, employee.last_name AS lastName, role.title AS title, department.dept_name AS department, role.salary AS salary,
-  FROM employee
-  JOIN role ON employee.role_id = role.id
-  JOIN department ON role.department_id = department.id
-`,  (err, result) => {
+    SELECT employee.id AS id, employee.first_name AS firstName, employee.last_name AS lastName, role.title AS title, department.dept_name AS department, role.salary AS salary
+    FROM employee
+    JOIN role ON employee.role_id = role.id
+    JOIN department ON role.department_id = department.id
+  `
+,  (err, result) => {
     if (err) throw err;
     console.table(result);
     startMenu()});
