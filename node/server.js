@@ -134,12 +134,12 @@ const addEmployee = () =>{
                 }, 
                 {
                 type: 'input',
-                name: 'res',
-                message: "Type the employee's last name"
+                name: 'manager',
+                message: "Who is the employee's manager?"
             }
             ])
             .then ((res) =>{
-                const e = new Employee(res.first_name, res.last_name, res.role, res.res);
+                const e = new Employee(res.first_name, res.last_name, res.role, res.manager);
                 const q = e.query()
                 addToDb(q);
             });
