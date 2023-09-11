@@ -5,10 +5,12 @@ const mysql = require('mysql2');
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password:  'Fuckface69',
+    password:  '',
     database: 'employees_db',
 }, 
-console.log('Conected to database!'))
+console.log('Conected to database!'));
+
+const Employee = require('./classes')
 
 
 db.connect(function (err) {
@@ -28,10 +30,10 @@ inquirer .prompt([
     
     switch(res.menu){
         case 'View All Employees':
-        // viewTable('employee')
         viewEmployees()
         break;
         case 'Add Employee':
+            addEmployee()
 
         break;
         case 'Update Employee Role':
@@ -76,21 +78,77 @@ const viewRoles = () => {
 
 const viewEmployees = () =>{
     db.query(`
-    SELECT employee.id AS id, employee.first_name AS firstName, employee.last_name AS lastName, role.title AS title, department.dept_name AS department, role.salary AS salary
+    SELECT employee.id AS id, employee.first_name AS firstName, employee.last_name AS lastName, role.title AS title, department.dept_name AS department, role.salary AS salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager
     FROM employee
     JOIN role ON employee.role_id = role.id
     JOIN department ON role.department_id = department.id
+    LEFT JOIN employee manager ON manager.id = employee.manager_id
   `
 ,  (err, result) => {
     if (err) throw err;
     console.table(result);
     startMenu()});
 }
-    // db.query(`SELECT employee.id AS id, employee.first_name AS first name, employee.last_name AS last name, role.title AS title, department.dept_name AS department, role.salary AS salary 
-    // FROM employee JOIN employee ON role.id = role_id 
-    // JOIN department ON role.department_id = department.id `,  (err, result) => {
-    //     if (err) throw err;
-    //     console.table(result);
-    //     startMenu()
-    // })
-//}
+
+function addToDb(q) {
+    db.query(q
+,  (err, result) => {
+    if (err) throw err;
+    console.table(result);
+    startMenu()});
+}
+const addEmployee = () =>{
+    const roles = () => {
+        return new Promise((resolve, reject) => {
+          db.query(
+            `SELECT title FROM role`,
+            (err, res) => {
+              if (err) {
+                reject(err);
+              } else {
+                const arr = res.map((res) => res.title);
+                resolve(arr);
+              }
+            }
+          );
+        });
+      };
+      roles()
+        .then((arr) => {
+            inquirer.prompt([
+                {
+                    type: 'input',
+                    name: 'first_name',
+                    message: "Type the employee's first name"
+                },
+                {
+                    type: 'input',
+                    name: 'last_name',
+                    message: "Type the employee's last name"
+                },
+                {
+                    type: 'list',
+                    name: 'role',
+                    message: "What is the employee's role?",
+                    choices: arr
+                }, 
+                {
+                type: 'input',
+                name: 'res',
+                message: "Type the employee's last name"
+            }
+            ])
+            .then ((res) =>{
+                const e = new Employee(res.first_name, res.last_name, res.role, res.res);
+                const q = e.query()
+                addToDb(q);
+            });
+                })
+            .catch((err) => {
+             console.error(err); // Handle any errors
+                 });
+    }
+
+
+
+
