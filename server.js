@@ -4,7 +4,7 @@ const mysql = require('mysql2');
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'admin',
     database: 'employees_db',
 },
     console.log('Conected to database!'));
@@ -50,7 +50,7 @@ const startMenu = () => {
                 addDepartment()
                 break;
             case 'Quit':
-
+                db.end();
                 break;
         }
     })
@@ -166,7 +166,7 @@ const addEmployee = () => {
                 }
             ])
                 .then((res) => {
-                    const employee = {
+                    let employee = {
                         first_name: res.first_name,
                         last_name: res.last_name,
                         role_id: res.role_id,
@@ -220,7 +220,14 @@ const addRole = () => {
                 {
                     type: 'input',
                     name: 'salary',
-                    message: "What is the salary of the role?"
+                    message: "What is the salary of the role?",
+                    validate: (answer) => {
+                        if (isNaN(answer)) {
+                          return "please enter a number";
+                        }
+                        return true;
+                      },
+                  
                 },
                 {
                     type: 'list',
@@ -353,6 +360,7 @@ const updateEmployeeRole = () => {
                         console.error(err);
                     } else {
                         console.log('Employee role updated successfully.');
+                        startMenu()
                     }
                 });
             })
